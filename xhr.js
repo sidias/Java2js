@@ -14,6 +14,8 @@ var TraceMethod                         = Java.type("org.apache.commons.httpclie
 var OptionsMethod                       = Java.type("org.apache.commons.httpclient.methods.OptionsMethod");
 var UsernamePasswordCredentials         = Java.type("org.apache.commons.httpclient.UsernamePasswordCredentials");
 var Header                              = Java.type("org.apache.commons.httpclient.Header");
+var Executors                           = Java.type("java.util.concurrent.Executors");
+var Callable                            = Java.type("java.util.concurrent.Callable");
 
 var JavaString                          = Java.type("java.lang.String");
 var ArrayList                           = Java.type("java.util.ArrayList");
@@ -50,14 +52,12 @@ function XMLHttpRequest() {
      * XHR properties
      */
     var statusLine = null;
-
-    //is it correct.
-    this.status; //= getStatus();
-    this.statusText; //= getStatusText();
-    this.responseText; //= getResponseText();
+    this.status = null;
+    this.statusText = null;
+    this.responseText = null;
 
     this.readyState = null;
-    //this.responseXML = getResponseXML();
+    this.responseXML = null;
     this.onreadystatechange = null;
     this.getAllResponseHeaders = getAllResponseHeaders;
     this.getResponseHeader = getResponseHeader;
@@ -68,7 +68,7 @@ function XMLHttpRequest() {
 
     var methodName = null,
         url = null,
-        async = null,
+        async = true,
         username = null,
         password = null,
         requestHeaders = new ArrayList();
@@ -99,7 +99,7 @@ function XMLHttpRequest() {
 /**
  * private method implementation
  * */
-      function getStatus() {
+    function getStatus() {
         return statusLine.getStatusCode();
     };
 
@@ -176,8 +176,23 @@ function XMLHttpRequest() {
                 "Request aborted.");
         }
 
-        send_xhr(obj)
+        send_xhr(obj);
     };
+
+    /**
+     * set values to public varriables,
+     * 1. status
+     * 2. readyStatu
+     * 3. statusText
+     * 4. responseText
+     * 5. responseXML
+     * */
+    function setValues() {
+        getStatus();
+        getStatusText();
+        getResponseText();
+        getResponseXML();
+    }
 
     //do casting
     function send_xhr(obj) {
@@ -224,27 +239,47 @@ function XMLHttpRequest() {
         }
         method = localMethod;
         if(async) {
-            //not implemented; ---------------------
-
+            print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
             updateReadyState(LOADING);
+            var es = Executors.newSingleThreadExecutor();
+            var callable = new Callable() {
+                call:function() {
+                    print("^^^^^^^^^^^^^^^^^^^")
+                    try {
+                        executeRequest(4);
+                        setValues();
+                    } catch(e) {
+                        throw new Error(e);
+                    }
+                    return null;
+                }
+            };
+            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% "+ callable)
+            print(Object.prototype.toString.call(callable));
+            es.submit(callable);
+            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
         } else {
             executeRequest();
+            setValues();
         }
-
     } ;
 
     function updateReadyState(readyState) {
+        print("--------------- updateReadystate")
         that.readyState = readyState;
         if(async && that.onreadystatechange != null) {
-            try {
-                that.onreadystatechange();
-            } catch (e) {
-                throw new Error(e);
+            if(util.isFunction(that.onreadystatechange)) {
+                try {
+                    that.onreadystatechange();
+                } catch (e) {
+                    throw new Error(e);
+                }
             }
         }
     };
 
-    function executeRequest() {
+    function executeRequest(f00) {
+        print("/////////////////////////////////////////////"+f00)
         try {
             httpClient.executeMethod(method);
             statusLine = method.getStatusLine();
@@ -288,10 +323,10 @@ function XMLHttpRequest() {
             return null;
         }
 
-        for(var h in responseHeaders) {
+        for(var i = 0; i < responseHeaders; i++) {
             var headerToUpper = header.toUpperCase();
-            if(h.getName().toUpperCase() == headerToUpper) {
-                return h.getValue();
+            if(responseHeaders[i].getName().toUpperCase() == headerToUpper) {
+                return responseHeaders[i].getValue();
             }
         }
         return null;
@@ -310,12 +345,13 @@ function XMLHttpRequest() {
         if(responseHeaders == null) {
             return headers;
         }
-        for(var h in responseHeaders) {
-            var header = h.getName(); //check if this setted
+
+        for(var i = 0; i <responseHeaders.length; i++) {
+            var header = responseHeaders[i].getName();
             if(isInvalidHeader(header)) {
                 continue;
             }
-            hBuf.append(h.getName() + ": " + h.getValue() + "\r\n");
+            hBuf.append(responseHeaders[i].getName() + ": " + responseHeaders[i].getValue() + "\r\n");
         }
         headers = hBuf.toString();
         return headers;
@@ -383,9 +419,9 @@ function XMLHttpRequest() {
         if(!(that.readyState == LOADING || that.readyState == DONE)) {
             return null;
         }
-        if(that.responseType != null && !(that.responseType == "text/xml") ||
-            that.responseType == "application/xml" ||
-            that.responseType.endsWith("+xml")) {
+        if(responseType || responseType != null && !(responseType == "text/xml") ||
+            responseType == "application/xml" ||
+            responseType.endsWith("+xml")) {
             return null;
         }
         if(that.responseXML != null) {

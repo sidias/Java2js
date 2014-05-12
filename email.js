@@ -1,22 +1,24 @@
 var util = require("util");
 
-var Properties              = Java.type("java.util.Properties");
-var MimeMessage             = Java.type("javax.mail.internet.MimeMessage");
-var MimeMultipart           = Java.type("javax.mail.internet.MimeMultipart");
+var OMElement               = Java.type("org.apache.axiom.om.OMElement");
 var DataHandler             = Java.type("javax.activation.DataHandler");
-var DataSource              = Java.type("javax.activation.DataSource");
 var InternetAddress         = Java.type("javax.mail.internet.InternetAddress");
 var MimeBodyPart            = Java.type("javax.mail.internet.MimeBodyPart");
 var ByteArrayDataSource     = Java.type("javax.mail.util.ByteArrayDataSource");
-var IOException             = Java.type("java.io.IOException");
-var InputStream             = Java.type("java.io.InputStream");
-var OutputStream            = Java.type("java.io.OutputStream");
-var Thread                  = Java.type("java.lang.Thread");
 var Session                 = Java.type("javax.mail.Session");
 var Transport               = Java.type("javax.mail.Transport");
 var Message                 = Java.type("javax.mail.Message");
 var Authenticator           = Java.type("javax.mail.Authenticator");
+var MimeMessage             = Java.type("javax.mail.internet.MimeMessage");
+var MimeMultipart           = Java.type("javax.mail.internet.MimeMultipart");
 var PasswordAuthentication  = Java.type("javax.mail.PasswordAuthentication");
+var DataSource              = Java.type("javax.activation.DataSource");
+
+var InputStream             = Java.type("java.io.InputStream");
+var OutputStream            = Java.type("java.io.OutputStream");
+var Thread                  = Java.type("java.lang.Thread");
+var Properties              = Java.type("java.util.Properties");
+var Files                    = Java.type("java.io.File");
 
 function sender() {
     var host,username, password, tls;
@@ -40,6 +42,7 @@ function sender() {
     this.subject = null;
     this.text = null;
     this.html = null;
+    this.addAttachment = addAttachment;
 
     var property = new Properties();
     props = property;
@@ -99,82 +102,190 @@ function sender() {
      * check params before send mail.*/
     function checkParam() {
         if(that.from != null && that.to != null) {
-            var messageBodyPart = new MimeBodyPart();
-
-            try{
-                /**
-                 * <p>The body text of the mail been sent</p>
-                 * <pre>
-                 * sender.text = "WSO2 Mashup server 1.0 was Released on 28th January 2008";
-                 * </pre>
-                 */
-                if(that.text != null) {
-                    messageBodyPart.setText(that.text);
-
-                } else {
-                    messageBodyPart.setText("");
-                }
-                multipart.addBodyPart(messageBodyPart);
-
-                /**
-                 * <p>The subject of the mail been sent</p>
-                 * <pre>
-                 * sender.subject = "WSO2 Mashup server 1.0 Released";
-                 * </pre>
-                 */
-                message.setSubject(that.subject);
-
-                /***/
-                addRecipients(Message.RecipientType.TO, that.to);
-
-                /**
-                 * <p>The bcc address that the mail is sent to</p>
-                 * <pre>
-                 * sender.bcc = "keith@wso2.com";
-                 *
-                 * OR
-                 *
-                 * var bcc = new Array();
-                 * bcc[0] = "jonathan@wso2.com";
-                 * bcc[1] =  "keith@wso2.com";
-                 * sender.bcc = bcc;
-                 * </pre>
-                 */
-                if(that.bcc != null) {
-                    addRecipients(Message.RecipientType.BCC, that.bcc);
-                }
-
-                /**
-                 * <p>The cc address that the mail is sent to</p>
-                 * <pre>
-                 * sender.cc = "keith@wso2.com";
-                 *
-                 * OR
-                 *
-                 * var cc = new Array();
-                 * cc[0] = "jonathan@wso2.com";
-                 * cc[1] =  "keith@wso2.com";
-                 * sender.cc = cc;
-                 * </pre>
-                 */
-                if(that.cc != null) {
-                    addRecipients(Message.RecipientType.CC, that.cc);
-                }
-
-                /**
-                 * <p>The from address to appear in the sender</p>
-                 * <pre>
-                 * sender.from = "keith@wso2.com";
-                 * </pre>
-                 */
-                message.setFrom(new InternetAddress(that.from));
-            } catch (e) {
-                throw new Error(e);
-            }
+            setFrom();
+            setTo();
+            setText();
+            SetSubject();
+            setBcc();
+            setCC();
+            setHtml();
         } else {
             throw new Error("cannot send mail.adderesses are not defined.");
         }
     };
+
+    //not completed  check file permissions
+    function addAttachment(filePath) {
+        if(filePath) {
+           if(util.isArray(filePath)) {
+               for(var i = 0; i < filePath.length; i++) {
+                   var file = new Files(filePath);
+               }
+           } else if(util.isString(filePath)) {
+               var file = new Files(filePath);
+           }
+
+            var messageBodyPart = new MimeBodyPart();
+            var source  = new DataSource () {
+                getInputStream : function() {
+                    try {
+                        return new FileInputStream(file);
+                    } catch(e) {
+                        throw new Error(e);
+                    }
+                },
+                getOutputStream : function() {
+                    try {
+                        return new FileOutputStream(file);
+                    } catch(e) {
+                        throw new Error(e);
+                    }
+                },
+                getContentType : function() {
+                    return null;
+                },
+                getName : function() {
+                    try {
+                        return file.getName();
+                    } catch(e) {
+                        throw new Error(e);
+                    }
+                    return null;
+                }
+            };
+
+            try {
+                messageBodyPart.setDataHandler(new DataHandler(source));
+                messageBodyPart.setFileName(file.getName());
+                multipart.addBodyPart(messageBodyPart);
+            } catch(e) {
+                throw new Error(e);
+            }
+        }
+    };
+
+    /**
+     * <p>The body text of the mail been sent</p>
+     * <pre>
+     * sender.text = "WSO2 Jaggery.js.";
+     * </pre>
+     */
+    function setText() {
+        var messageBodyPart = new MimeBodyPart();
+
+        try{
+            if(that.text != null || that.text) {
+                messageBodyPart.setText(that.text);
+            }
+            multipart.addBodyPart(messageBodyPart);
+        }catch(e) {
+            throw new Error(e);
+        }
+    }
+
+    /**
+     * <p>The subject of the mail been sent</p>
+     * <pre>
+     * sender.subject = "WSO2 Mashup server 1.0 Released";
+     * </pre>
+     */
+    function SetSubject() {
+        try {
+            message.setSubject(that.subject);
+        } catch(e) {
+            throw new Error(e);
+        }
+    }
+
+    function setTo() {
+        addRecipients(Message.RecipientType.TO, that.to);
+    }
+
+    /**
+     * <p>The bcc address that the mail is sent to</p>
+     * <pre>
+     * sender.bcc = "keith@wso2.com";
+     *
+     * OR
+     *
+     * var bcc = new Array();
+     * bcc[0] = "jonathan@wso2.com";
+     * bcc[1] =  "keith@wso2.com";
+     * sender.bcc = bcc;
+     * </pre>
+     */
+    function setBcc() {
+        if(that.bcc != null || that.bcc ) {
+            addRecipients(Message.RecipientType.BCC, that.bcc);
+        }
+    }
+
+    /**
+     * <p>The cc address that the mail is sent to</p>
+     * <pre>
+     * sender.cc = "keith@wso2.com";
+     *
+     * OR
+     *
+     * var cc = new Array();
+     * cc[0] = "jonathan@wso2.com";
+     * cc[1] =  "keith@wso2.com";
+     * sender.cc = cc;
+     * </pre>
+     */
+    function setCC() {
+        if(that.cc != null || that.cc) {
+            addRecipients(Message.RecipientType.CC, that.cc);
+        }
+    }
+
+    /**
+     * <p>The from address to appear in the sender</p>
+     * <pre>
+     * sender.from = "keith@wso2.com";
+     * </pre>
+     */
+    function setFrom() {
+        message.setFrom(new InternetAddress(that.from));
+    }
+
+    /**
+     * set html element
+     * */
+        //need to check in here.not tested.
+     function setHtml() {
+        if(that.html || that.html != null) {
+            if(false) {
+                var node = null;
+                try {
+                    node = AXIOMUtil.stringToOM(that.html.toString());
+                } catch (e) {
+                    throw new Error(e);
+                }
+                if(node instanceof OMElement) {
+                    var htmlElement = node;
+                    that.html = htmlElement.toString();
+                } else {
+                    throw new Error("Invalid input argument. The html function accepts " +
+                        "either a String or an XML element.");
+                }
+            } else {
+                throw new Error("Invalid input argument. The html function accepts " +
+                    "either a String or an XML element.");
+            }
+
+            var messageBodyPart = new MimeBodyPart();
+            var dataHandler = null;
+            try {
+                dataHandler = new DataHandler(
+                    new ByteArrayDataSource(that.html, "text/html"));
+                messageBodyPart.setDataHandler(dataHandler);
+                multipart.addBodyPart(messageBodyPart);
+            } catch(e) {
+                throw new Error(e);
+            }
+        }
+    }
 
     /**
      * <p>Send the mail out</p>
@@ -188,7 +299,6 @@ function sender() {
         var classLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(javax.mail.Session.class.getClassLoader());
         try {
-
             message.setContent(multipart);
             Transport.send(message);
         } catch (e) {
@@ -202,8 +312,10 @@ function sender() {
     function addRecipients(recipientType, recipientObject) {
         try {
             if (util.isArray(recipientObject) ) {
+
                 var to = recipientObject;
-                var recipientAddresses = new InternetAddress[to.length];
+                var recipientAddresses = new Array(to.length);
+
                 for(var i = 0; i < to.length; i++) {
                     recipientAddresses[i] = new InternetAddress(to[i]);
                 }
@@ -243,9 +355,6 @@ function sender() {
  * var sender = new email()*/
 //or else
 //module.exports = sender;
-
-sender.prototype.addAttachment = function() {};
-
 /**
  * access via
  * var email = require('email');
