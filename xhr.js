@@ -239,14 +239,12 @@ function XMLHttpRequest() {
         }
         method = localMethod;
         if(async) {
-            print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
             updateReadyState(LOADING);
             var es = Executors.newSingleThreadExecutor();
             var callable = new Callable() {
                 call:function() {
-                    print("^^^^^^^^^^^^^^^^^^^")
                     try {
-                        executeRequest(4);
+                        executeRequest();
                         setValues();
                     } catch(e) {
                         throw new Error(e);
@@ -254,10 +252,7 @@ function XMLHttpRequest() {
                     return null;
                 }
             };
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% "+ callable)
-            print(Object.prototype.toString.call(callable));
             es.submit(callable);
-            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
         } else {
             executeRequest();
             setValues();
@@ -265,7 +260,6 @@ function XMLHttpRequest() {
     } ;
 
     function updateReadyState(readyState) {
-        print("--------------- updateReadystate")
         that.readyState = readyState;
         if(async && that.onreadystatechange != null) {
             if(util.isFunction(that.onreadystatechange)) {
@@ -278,8 +272,7 @@ function XMLHttpRequest() {
         }
     };
 
-    function executeRequest(f00) {
-        print("/////////////////////////////////////////////"+f00)
+    function executeRequest() {
         try {
             httpClient.executeMethod(method);
             statusLine = method.getStatusLine();
