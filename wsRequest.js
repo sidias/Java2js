@@ -1,72 +1,93 @@
-var util                    = require("util");
+var util = require("util");
 
-var KerberosConfig          = Java.type("org.apache.rampart.policy.model.KerberosConfig");
-var RampartConfig           = Java.type("org.apache.rampart.policy.model.RampartConfig");
-var CryptoConfig            = Java.type("org.apache.rampart.policy.model.CryptoConfig");
-var OMElement               = Java.type("org.apache.axiom.om.OMElement");
-var OMNamespace             = Java.type("org.apache.axiom.om.OMNamespace");
-var OMNode                  = Java.type("org.apache.axiom.om.OMNode");
-var AXIOMUtil               = Java.type("org.apache.axiom.om.util.AXIOMUtil");
-var AxisFault               = Java.type("org.apache.axis2.AxisFault");
-var AxisBindingMessage      = Java.type("org.apache.axis2.description.AxisBindingMessage");
-var Utils                   = Java.type("org.apache.axis2.util.Utils");
-var XMLUtils                = Java.type("org.apache.axis2.util.XMLUtils");
-var AxisService             = Java.type("org.apache.axis2.description.AxisService");
-var WSDL2Constants          = Java.type("org.apache.axis2.description.WSDL2Constants");
-var AxisEndpoint            = Java.type("org.apache.axis2.description.AxisEndpoint");
-var EndpointReference       = Java.type("org.apache.axis2.addressing.EndpointReference");
-var HttpTransportProperties = Java.type("org.apache.axis2.transport.http.HttpTransportProperties");
-var Constants               = Java.type("org.apache.axis2.Constants");
-var WSDLConstants           = Java.type("org.apache.axis2.wsdl.WSDLConstants");
-var ServiceClient           = Java.type("org.apache.axis2.client.ServiceClient");
-var WSDL2Constants          = Java.type("org.apache.axis2.description.WSDL2Constants");
-var JavaUtils               = Java.type("org.apache.axis2.util.JavaUtils");
-var AddressingConstants     = Java.type("org.apache.axis2.addressing.AddressingConstants");
-var Options                 = Java.type("org.apache.axis2.client.Options");
-var HTTPConstants           = Java.type("org.apache.axis2.transport.http.HTTPConstants");
-var Header                  = Java.type("org.apache.commons.httpclient.Header");
-var HttpMethod              = Java.type("org.apache.commons.httpclient.HttpMethod");
-var CookiePolicy            = Java.type("org.apache.commons.httpclient.cookie.CookiePolicy");
-var FilenameUtils           = Java.type("org.apache.commons.io.FilenameUtils");
-var GetMethod               = Java.type("org.apache.commons.httpclient.methods.GetMethod");
-var HttpStatus              = Java.type("org.apache.commons.httpclient.HttpStatus");
-var FilenameUtils           = Java.type("org.apache.commons.io.FilenameUtils");
-var Policy                  = Java.type("org.apache.neethi.Policy");
-var RampartMessageData      = Java.type("org.apache.rampart.RampartMessageData");
-var Definition              = Java.type("javax.wsdl.Definition");
-var Port                    = Java.type("javax.wsdl.Port");
-var Service                 = Java.type("javax.wsdl.Service");
-var HTTPAddress             = Java.type("javax.wsdl.extensions.http.HTTPAddress");
-var SOAPAddress             = Java.type("javax.wsdl.extensions.soap.SOAPAddress");
-var SOAP12Address           = Java.type("javax.wsdl.extensions.soap12.SOAP12Address");
-var WSDLFactory             = Java.type("javax.wsdl.factory.WSDLFactory");
-var WSDLReader              = Java.type("javax.wsdl.xml.WSDLReader");
-var XMLInputFactory         = Java.type("javax.xml.stream.XMLInputFactory");
-var XMLStreamException      = Java.type("javax.xml.stream.XMLStreamException");
-var XMLStreamReader         = Java.type("javax.xml.stream.XMLStreamReader");
-var SOAP11Constants         = Java.type("org.apache.axiom.soap.SOAP11Constants");
-var SOAP12Constants         = Java.type("org.apache.axiom.soap.SOAP12Constants");
-var StAXOMBuilder           = Java.type("org.apache.axiom.om.impl.builder.StAXOMBuilder");
-var OMSourcedElementImpl    = Java.type("org.apache.axiom.om.impl.llom.OMSourcedElementImpl");
-var OMAbstractFactory       = Java.type("org.apache.axiom.om.OMAbstractFactory");
-var WSHandlerConstants      = Java.type("org.apache.ws.security.handler.WSHandlerConstants");
-var PolicyEngine            = Java.type("org.apache.neethi.PolicyEngine")
-var QName                   = Java.type("javax.xml.namespace..QName");
-var WSPasswordCallback      = Java.type("org.apache.ws.security.WSPasswordCallback");
+var KerberosConfig                      = Java.type("org.apache.rampart.policy.model.KerberosConfig");
+var RampartConfig                       = Java.type("org.apache.rampart.policy.model.RampartConfig");
+var CryptoConfig                        = Java.type("org.apache.rampart.policy.model.CryptoConfig");
+var OMElement                           = Java.type("org.apache.axiom.om.OMElement");
+var OMNamespace                         = Java.type("org.apache.axiom.om.OMNamespace");
+var OMNode                              = Java.type("org.apache.axiom.om.OMNode");
+var SOAP11Constants                     = Java.type("org.apache.axiom.soap.SOAP11Constants");
+var SOAP12Constants                     = Java.type("org.apache.axiom.soap.SOAP12Constants");
+var StAXOMBuilder                       = Java.type("org.apache.axiom.om.impl.builder.StAXOMBuilder");
+var OMSourcedElementImpl                = Java.type("org.apache.axiom.om.impl.llom.OMSourcedElementImpl");
+var OMAbstractFactory                   = Java.type("org.apache.axiom.om.OMAbstractFactory");
+var AXIOMUtil                           = Java.type("org.apache.axiom.om.util.AXIOMUtil");
+var AxisFault                           = Java.type("org.apache.axis2.AxisFault");
+var AxisBindingMessage                  = Java.type("org.apache.axis2.description.AxisBindingMessage");
+var Utils                               = Java.type("org.apache.axis2.util.Utils");
+var XMLUtils                            = Java.type("org.apache.axis2.util.XMLUtils");
+var AxisService                         = Java.type("org.apache.axis2.description.AxisService");
+var WSDL2Constants                      = Java.type("org.apache.axis2.description.WSDL2Constants");
+var AxisEndpoint                        = Java.type("org.apache.axis2.description.AxisEndpoint");
+var EndpointReference                   = Java.type("org.apache.axis2.addressing.EndpointReference");
+var HttpTransportProperties             = Java.type("org.apache.axis2.transport.http.HttpTransportProperties");
+var Constants                           = Java.type("org.apache.axis2.Constants");
+var WSDLConstants                       = Java.type("org.apache.axis2.wsdl.WSDLConstants");
+var ServiceClient                       = Java.type("org.apache.axis2.client.ServiceClient");
+var WSDL2Constants                      = Java.type("org.apache.axis2.description.WSDL2Constants");
+var JavaUtils                           = Java.type("org.apache.axis2.util.JavaUtils");
+var AddressingConstants                 = Java.type("org.apache.axis2.addressing.AddressingConstants");
+var Options                             = Java.type("org.apache.axis2.client.Options");
+var HTTPConstants                       = Java.type("org.apache.axis2.transport.http.HTTPConstants");
+var Header                              = Java.type("org.apache.commons.httpclient.Header");
+var HttpMethod                          = Java.type("org.apache.commons.httpclient.HttpMethod");
+var CookiePolicy                        = Java.type("org.apache.commons.httpclient.cookie.CookiePolicy");
+var GetMethod                           = Java.type("org.apache.commons.httpclient.methods.GetMethod");
+var HttpStatus                          = Java.type("org.apache.commons.httpclient.HttpStatus");
+var FilenameUtils                       = Java.type("org.apache.commons.io.FilenameUtils");
 
-var List                    = Java.type("java.util.List");
-var Properties              = Java.type("java.util.Properties");
-var File                    = Java.type("java.io.File");
-var InputStream             = Java.type("java.io.InputStream");
-var StringReader            = Java.type("java.io.StringReader");
-var ArrayList               = Java.type("java.util.ArrayList");
-var JavaBoolean             = Java.type("java.lang.Boolean");
-var SOAP12Address           = Java.type("javax.wsdl.extensions.soap12.SOAP12Address");
-var MalformedURLException   = Java.type("java.net.MalformedURLException");
+var Policy                              = Java.type("org.apache.neethi.Policy");
+var RampartMessageData                  = Java.type("org.apache.rampart.RampartMessageData");
+var Definition                          = Java.type("javax.wsdl.Definition");
+var Port                                = Java.type("javax.wsdl.Port");
+var Service                             = Java.type("javax.wsdl.Service");
+var HTTPAddress                         = Java.type("javax.wsdl.extensions.http.HTTPAddress");
+var SOAPAddress                         = Java.type("javax.wsdl.extensions.soap.SOAPAddress");
+var SOAP12Address                       = Java.type("javax.wsdl.extensions.soap12.SOAP12Address");
+var WSDLFactory                         = Java.type("javax.wsdl.factory.WSDLFactory");
+var WSDLReader                          = Java.type("javax.wsdl.xml.WSDLReader");
+
+var XMLInputFactory                     = Java.type("javax.xml.stream.XMLInputFactory");
+var XMLStreamException                  = Java.type("javax.xml.stream.XMLStreamException");
+var XMLStreamReader                     = Java.type("javax.xml.stream.XMLStreamReader");
+var WSHandlerConstants                  = Java.type("org.apache.ws.security.handler.WSHandlerConstants");
+var PolicyEngine                        = Java.type("org.apache.neethi.PolicyEngine")
+var QName                               = Java.type("javax.xml.namespace.QName");
+var WSPasswordCallback                  = Java.type("org.apache.ws.security.WSPasswordCallback");
+var ConfigurationContextFactory         = Java.type("org.apache.axis2.context.ConfigurationContextFactory");
+var MultiThreadedHttpConnectionManager  = Java.type("org.apache.commons.httpclient.MultiThreadedHttpConnectionManager");
+var UsernamePasswordCredentials         = Java.type("org.apache.commons.httpclient.UsernamePasswordCredentials");
+var AuthScope                           = Java.type("org.apache.commons.httpclient.auth.AuthScope");
+
+var List                        = Java.type("java.util.List");
+var Properties                  = Java.type("java.util.Properties");
+var File                        = Java.type("java.io.File");
+var InputStream                 = Java.type("java.io.InputStream");
+var StringReader                = Java.type("java.io.StringReader");
+var ArrayList                   = Java.type("java.util.ArrayList");
+var JavaBoolean                 = Java.type("java.lang.Boolean");
+var SOAP12Address               = Java.type("javax.wsdl.extensions.soap12.SOAP12Address");
+var MalformedURLException       = Java.type("java.net.MalformedURLException");
+var URL                         = Java.type("java.net.URL");
+
+/**
+ * register two methods 'startsWith' and 'endsWith' to string object
+ * */
+if(typeof String.prototype.startsWith != 'function') {
+    String.prototype.startsWith = function(str) {
+        return this.slice(0, str.length) == str;
+    }
+}
+
+if(typeof String.prototype.endsWith != "function") {
+    String.prototype.endsWith = function(str) {
+        return this.slice(-str.length) == str;
+    }
+}
 
 function WSRequest() {
 
-    var serialVersionUID = -4540679471306518117L;
+    //var serialVersionUID = (-4540679471306518117L);
     var IN_OUT = "in-out";
     var IN_ONLY = "in-only";
     var CLIENT_REPOSITORY_LOCATION = "Axis2Config.ClientRepositoryLocation";
@@ -77,9 +98,10 @@ function WSRequest() {
 
     this.responseText = null;
     this.responseXML = null;
+    this.responseE4X = this.responseXML;
     this.readyState = 0;
     this.status;
-    this.getResponseHeader = getResponseHeader;
+    //this.getResponseHeader = getResponseHeader;
     this.onreadystatechange = null
     this.error = null;
 
@@ -94,6 +116,8 @@ function WSRequest() {
     var transportHeaders = null;
     var httpHeaders = null;
 
+    var that = this;
+
     this.open = function(arguments) {
         if (that.readyState > 0 && that.readyState < 4) {
             throw new Error("Invalid readyState for WSRequest Hostobject : " + that.readyState);
@@ -104,16 +128,22 @@ function WSRequest() {
         }
         //this method using another jaggery host object.
         try {
-            //ConfigurationContext configurationContext = ConfigurationContextFactory.
-            //createBasicConfigurationContext("META-INF/axis2_client.xml");
-            sender = new ServiceClient(WSRequestServiceComponent.getConfigurationContext(), null);
+            var configurationContext = ConfigurationContextFactory.
+            createBasicConfigurationContext("META-INF/axis2_client.xml");
+            sender = new ServiceClient(configurationContext, null);
+            //sender = new ServiceClient(WSRequestServiceComponent.getConfigurationContext(), null);
         } catch (e) {
+            print("---------------");
             throw new Error(e);
         }
         // Setting the cookie policy here
         setCommonProperties(setOptionsOpen(arguments));
     }
 
+    /**
+     * This function enables you to give a WSDL and get WSRequest configured. You dont have to
+     * configure it your self using an options object.
+     */
     this.openWSDL = function() {
         if (that.readyState > 0 && that.readyState < 4) {
             throw new Error("Invalid readyState for WSRequest Hostobject : " + that.readyState);
@@ -141,7 +171,7 @@ function WSRequest() {
                 var qName = arguments[0];
                 var uri = qName.getNamespaceURI();
                 var localName = qName.getLocalPart();
-                operationName = new QName(uri, localName);.
+                operationName = new QName(uri, localName);
 
             } else if (util.isString(arguments[0])) {
                 if (targetNamespace == null) {
@@ -172,7 +202,7 @@ function WSRequest() {
                 var message = "Invalid input for the payload in WSRequest Hostobject : " + payload;
                 throw new Error(message);
             }
-        } else if () {
+        } else if (false) {
             //-------------------- not done.
         }
 
@@ -213,7 +243,7 @@ function WSRequest() {
                     }
                     that.readyState = 4;
                 } else {
-                    //                    setSSLProperties(wsRequest);
+                    //setSSLProperties(wsRequest);
                     if (IN_ONLY == mepToUpper) {
                         sender.fireAndForget(payloadElement);
                     } else {
@@ -254,12 +284,13 @@ function WSRequest() {
         }
     }
 
+    /*
     function getResponseHeader() {
         if (arguments.length != 1) {
             throw new Error("invalid number of arguments");
         }
-        return String(transportHeaders.(String (arguments[0])));
-    }
+        return String(transportHeaders.get(String (arguments[0])));
+    }  */
 
     function getBaseURI(currentURI) {
         try {
@@ -385,7 +416,7 @@ function WSRequest() {
             for (var k = 0; k < id.length; k++) {
                 soapHeaderObject = soapHeaders.get(Number(id), soapHeaders);
                 if (util.isString(soapHeaderObject)) {
-                    var header = soapHeaderObject;
+                    var header = String(soapHeaderObject);
                     try {
                         var soapHeaderOM = AXIOMUtil.stringToOM(header);
                         sender.addHeader(soapHeaderOM);
@@ -408,20 +439,20 @@ function WSRequest() {
                     if (soapHeaderObject.get("qName",
                         soapHeaderObject) instanceof QName) {
 
-                        var qName = soapHeaderObject.get("qName", soapHeader);
+                        var qName = soapHeaderObject.get("qName", soapHeaderObject); // casting not done.
                         uri = String(qName.getNamespaceURI());
                         localName = String (qName.getLocalPart());
                     } else {
                         throw new Error("No qName property found for the soap headers");
                     }
-                    if (util.isString(soapHeaderObject.get("value", soapHeader))) {
+                    if (util.isString(soapHeaderObject.get("value", soapHeaderObject))) {
                         try {
                             sender.addStringHeader(new QName(uri, localName),
-                                String (soapHeader.get("value", soapHeader)));
+                                String (soapHeaderObject.get("value", soapHeaderObject)));
                         } catch (e) {
                             throw new Error(e);
                         }
-                    } else if (soapHeaderObject.get("value", soapHeader) instanceof ) {//xmlobjec not defined
+                    } else if (/*soapHeaderObject.get("value", soapHeaderObject) instanceof */false ) {//xmlobjec not defined
                         var omNamespace = OMAbstractFactory.getOMFactory().createOMNamespace(uri, null);
                         var headerBlock = OMAbstractFactory.getSOAP12Factory().
                             createSOAPHeaderBlock(localName, omNamespace);
@@ -666,6 +697,30 @@ function WSRequest() {
         return optionsObj;
     }
 
+    //method from hostObjectUtil
+    function getURL(urlString, username, password) {
+        var method = new GetMethod(urlString);
+        var url = new URL(urlString);
+        var connectionManager = new MultiThreadedHttpConnectionManager();
+        var httpClient = new HttpClient(connectionManager);
+        // We should not use method.setURI and set the complete URI here.
+        // If we do so commons-httpclient will not use our custom socket factory.
+        // Hence we set the path and query separatly
+        method.setPath(url.getPath());
+        method.setQueryString(url.getQuery());
+        method.setRequestHeader("Host", url.getHost());
+        method.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+
+        // If a username and a password is provided we support basic auth
+        if ((username != null) && (password != null)) {
+            var creds = new UsernamePasswordCredentials(username, password);
+            var port = url.getPort();
+            httpClient.getState()
+                .setCredentials(new AuthScope(url.getHost(), port), creds);
+        }
+        return httpClient.executeMethod(method);
+    }
+
     function setOptionsOpenWSDL(args) {
         var object;
         var wsdlURL;
@@ -743,7 +798,7 @@ function WSRequest() {
 
         var method = new GetMethod(wsdlURL);
         try {
-            var statusCode = "";    /// not completed
+            var statusCode = getURL(wsdlURL, null, null);
             if (statusCode != HttpStatus.SC_OK) {
                 throw new Error("An error occured while getting the resource at " + wsdlURL + ". Reason :" +
                     method.getStatusLine());
@@ -772,19 +827,36 @@ function WSRequest() {
                 var ports = service.getPorts();
                 var port;
                 returnPort = null;
-                for (var portsIterator = ports.values().iterator()) {
-                    //----------------not completed
+                var portsIterator = ports.values().iterator();
+                while (portsIterator.hasNext()) {
+                    if (returnPort == null) {
+                        port = portsIterator.next();
+                        var extensibilityElements = port.getExtensibilityElements();
+                        for (var k = 0; k < extensibilityElements.length; k++) {
+                            if(extensibilityElements[k] instanceof  SOAPAddress) {
+                                // SOAP 1.1 address found - keep this and loop until http address is found
+                                returnPort = port;
+                                var location =  extensibilityElements[k].getLocationURI().trim();
+                                if (location != null && Location.startsWith("http:")) {
+                                    // i.e we have found an http port so return from here
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        break;
+                    }
                 }
+
                 if(returnPort == null) {
                     var object = ports.values();
                     for(var i = 0; i < object.length; i++) {
-                        port = object;
+                        port = object[i];
                         var extensibilityElements = port.getExtensibilityElements();
                         for (var k = 0; k < extensibilityElements.size(); i++) {
                             if (extensibilityElements[k] instanceof SOAP12Address) {
                                 // SOAP 1.2 address found - keep this and loop until http address is found.
                                 returnPort = port;
-                                //not casted -----------------------
                                 var location = extensibilityElements[k].getLocationURI().trim();
                                 if((location != null) && location.startsWith("http:")) {
                                     // i.e we have found an http port so return from here
@@ -838,7 +910,7 @@ function WSRequest() {
 
     function getObjectProperty(object, property) {
         if(util.isString(object[property])) {
-            return object[property];
+            return String (object[property]);
         } else {
             return null;
         }
@@ -903,15 +975,15 @@ function WSRequest() {
         var rampartPolicy = null;
         if(policy != null) {
             var policyElement;
-            var node = AXIOMUtil.stringToOM(wsRequest.policy.toString());
+            var node = AXIOMUtil.stringToOM(policy.toString());
             if (node instanceof OMElement) {
-                policyElement = OMElement(node);  //casting is correct
+                policyElement = node;
             } else {
                 throw new Error("INVALID_INPUT_EXCEPTION. Invalid input was : " + policy);
             }
 
             rampartPolicy = PolicyEngine.getPolicy(policyElement);
-            var list = List (rampartPolicy.getAlternatives().next());
+            var list = rampartPolicy.getAlternatives().next();
 
             for (var i = 0; i < list.size(); i++) {
                 if(list[i] instanceof RampartConfig) {
@@ -984,7 +1056,7 @@ function WSRequest() {
                 }
 
                 cryptoObject = rampartConfigs.get(RampartConfig.STS_CRYPTO_LN, rampartConfigs);
-                if (util.isObject(cryptoObject) {
+                if (util.isObject(cryptoObject)) {
                     rampartConfig.setSigCryptoConfig(getCryptoConfig(cryptoObject));
                 }
 
@@ -1028,7 +1100,9 @@ function WSRequest() {
                 } else if (useUT) {
                     var xmlPath = "scenarios/scenario1-policy.xml";
                     try {
-                        var policyXMLStream = "";
+
+                        /////---------------- need change here.
+                        var policyXMLStream = "";   //need to use get resource as stream.
                         var builder = new StAXOMBuilder(policyXMLStream);
                         rampartPolicy = PolicyEngine.getPolicy(builder.getDocumentElement());
                     } catch (e) {
@@ -1084,160 +1158,175 @@ function WSRequest() {
         properties.setProperty("org.apache.ws.security.crypto.merlin.file",
             properties.getProperty("org.apache.ws.security.crypto.merlin.file"));
     }
-}
- //not completed
-function updateResponse(response) {
-    if (response instanceof OMSourcedElementImpl) {
-        var sourcedElement = response;  //--- not casted
-        setJSONAsXML(sourcedElement);
-    } else if (response != null) {
-        that.responseText = response.toStringWithConsume();
-        that.responseXML = {};
+
+    //not completed
+    function updateResponse(response) {
+        if (response instanceof OMSourcedElementImpl) {
+            var sourcedElement = response;  //--- not casted
+            setJSONAsXML(sourcedElement);
+        } else if (response != null) {
+            that.responseText = response.toStringWithConsume();
+            that.responseXML = {};
+        }
     }
-}
 
-var userPassword = null;
-var keyPassword = null;
+    var userPassword = null;
+    var keyPassword = null;
 
-var PasswordCallbackHandler = new javax.security.auth.callback.CallbackHandler () {
+    var PasswordCallbackHandler = new javax.security.auth.callback.CallbackHandler () {
 
-    handle:function(callbacks) {
-        var callbacksLength = callbacks.length;
-        for (var i = 0; i < callbacksLength; i++) {
-            if (callbacks[i] instanceof WSPasswordCallback) {
-                var passwordCallback = callbacks[i];
+        handle:function(callbacks) {
+            var callbacksLength = callbacks.length;
+            for (var i = 0; i < callbacksLength; i++) {
+                if (callbacks[i] instanceof WSPasswordCallback) {
+                    var passwordCallback = callbacks[i];
 
-                switch (passwordCallback.getUsage()) {
-                    case WSPasswordCallback.SIGNATURE:
-                    case WSPasswordCallback.DECRYPT:
-                        passwordCallback.setPassword(keyPassword);
-                        break;
-                    case WSPasswordCallback.USERNAME_TOKEN:
-                        passwordCallback.setPassword(userPassword);
-                        break;
+                    switch (passwordCallback.getUsage()) {
+                        case WSPasswordCallback.SIGNATURE:
+                        case WSPasswordCallback.DECRYPT:
+                            passwordCallback.setPassword(keyPassword);
+                            break;
+                        case WSPasswordCallback.USERNAME_TOKEN:
+                            passwordCallback.setPassword(userPassword);
+                            break;
+                    }
+                } else {
+                    throw new javax.security.auth.callback.UnsupportedCallbackException(callbacks[i], "Unrecognized Callback");
                 }
-            } else {
-                throw new javax.security.auth.callback.UnsupportedCallbackException(callbacks[i], "Unrecognized Callback");
             }
         }
     }
+
+    function processError (exception) {
+        if (exception instanceof AxisFault) {
+            var detail = exception.getDetail();
+            if (detail != null) {
+                that.error.detail = detail.toString();
+            }
+            var faultCode = exception.getFaultCode();
+            if (faultCode != null) {
+                that.error.code = faultCode.toString();
+            }
+            that.error.reson = exception.getReson();
+        } else {
+            var cause = exception.getCause();
+            if (cause != null) {
+                that.error.detail = cause.toString();
+            }
+            that.error.code = "No SOAP Body";
+            that.error.reson = exception.getMessage();
+
+        }
+        that.readyState = 4;
+        if (that.onreadystatechange != null) {
+            that.onreadystatechange();
+        }
+    }
+
+    var WSRequestCallback = new org.apache.axis2.client.async.AxisCallback() {
+
+        onComplete:function() {
+
+        },
+
+        onError:function (ex) {
+            that.error = new WebServiceError();
+            processError(ex);
+        },
+
+        onFault:function (messageContext) {
+            var fault = Utils.getInboundFaultFromMessageContext(messageContext);
+            processError(fault);
+        },
+
+        onMessage:function (messageContext) {
+            try {
+                updateResponse(messageContext.getEnvelope().getBody().getFirstElement());
+                that.readyState = 4;
+                if (that.onreadystatechange != null) {
+                    that.onreadystatechange();
+                }
+            } catch (e) {
+                throw new Error(e);
+            }
+        }
+    }
+
+    function WebServiceError () {
+        this.code;
+        this.detail;
+        this.reson;
+
+        var that = this;
+
+        var argLength = arguments.length;
+        switch (argLength) {
+            case 0:
+                throw new Error("INVALID_SYNTAX_EXCEPTION");
+            case 1:
+                if (arguments[0] instanceof WebServiceError) {
+                    return args[0];
+                }
+                if (util.isString(arguments[0])) {
+                    that.reson = String(arguments[0]);
+                } else {
+                    throw new Error("INVALID_SYNTAX_EXCEPTION");
+                }
+                break;
+            case 2:
+                if (util.isString(arguments[0])) {
+                    that.reson = String(arguments[0]);
+                } else {
+                    throw new Error("INVALID_SYNTAX_EXCEPTION");
+                }
+                if (util.isString(arguments[1])) {
+                    that.detail = String(arguments[1]);
+                } else {
+                    throw new Error("INVALID_SYNTAX_EXCEPTION");
+                }
+                break;
+            case 3:
+                if (util.isString(arguments[0])) {
+                    that.reson = String(arguments[0]);
+                } else {
+                    throw new Error("INVALID_SYNTAX_EXCEPTION");
+                }
+                if (util.isString(arguments[1])) {
+                    that.detail = String(arguments[1]);
+                } else {
+                    throw new Error("INVALID_SYNTAX_EXCEPTION");
+                }
+                if (util.isString(arguments[2])) {
+                    that.code = String(arguments[2]);
+                } else {
+                    throw new Error("INVALID_SYNTAX_EXCEPTION");
+                }
+                break;
+            default:
+                throw new Error("INVALID_SYNTAX_EXCEPTION");
+        }
+    }
+
 }
 
-function processError (exception) {
-    if (exception instanceof AxisFault) {
-        var detail = exception.getDetail();
-        if (detail != null) {
-            that.error.detail = detail.toString();
-        }
-        var faultCode = exception.getFaultCode();
-        if (faultCode != null) {
-            that.error.code = faultCode.toString();
-        }
-        that.error.reson = exception.getReson();
-    } else {
-        var cause = exception.getCause();
-        if (cause != null) {
-            that.error.detail = cause.toString();
-        }
-        that.error.code = "No SOAP Body";
-        that.error.reson = exception.getMessage();
-
-    }
-    that.readyState = 4;
-    if (that.onreadystatechange != null) {
-        that.onreadystatechange();
-    }
-}
-
-var WSRequestCallback = new org.apache.axis2.client.async.AxisCallback() {
-
-    onComplete:function() {
-
-    },
-
-    onError:function (ex) {
-        that.error = new WebServiceError();
-        processError(ex);
-    },
-
-    onFault:function (messageContext) {
-        var fault = Utils.getInboundFaultFromMessageContext(messageContext);
-        processError(fault);
-    },
-
-    onMessage:function (messageContext) {
-        try {
-            updateResponse(messageContext.getEnvelope().getBody().getFirstElement());
-            that.readyState = 4;
-            if (that.onreadystatechange != null) {
-                that.onreadystatechange();
-            }
-        } catch (e) {
-            throw new Error(e);
-        }
-    }
-}
-
-function WebServiceError () {
-    this.code;
-    this.detail;
-    this.reson;
-
-    var that = this;
-
-    var argLength = arguments.length;
-    switch (argLength) {
-        case 0:
-            throw new Error("INVALID_SYNTAX_EXCEPTION");
-        case 1:
-            if (arguments[0] instanceof WebServiceError) {
-                return args[0];
-            }
-            if (util.isString(arguments[0])) {
-                that.reson = String(arguments[0]);
-            } else {
-                throw new Error("INVALID_SYNTAX_EXCEPTION");
-            }
-            break;
-        case 2:
-            if (util.isString(arguments[0])) {
-                that.reson = String(arguments[0]);
-            } else {
-                throw new Error("INVALID_SYNTAX_EXCEPTION");
-            }
-            if (util.isString(arguments[1])) {
-                that.detail = String(arguments[1]);
-            } else {
-                throw new Error("INVALID_SYNTAX_EXCEPTION");
-            }
-            break;
-        case 3:
-            if (util.isString(arguments[0])) {
-                that.reson = String(arguments[0]);
-            } else {
-                throw new Error("INVALID_SYNTAX_EXCEPTION");
-            }
-            if (util.isString(arguments[1])) {
-                that.detail = String(arguments[1]);
-            } else {
-                throw new Error("INVALID_SYNTAX_EXCEPTION");
-            }
-            if (util.isString(arguments[2])) {
-                that.code = String(arguments[2]);
-            } else {
-                throw new Error("INVALID_SYNTAX_EXCEPTION");
-            }
-            break;
-        default:
-            throw new Error("INVALID_SYNTAX_EXCEPTION");
-    }
-}
-
+/*
 // org.jaggeryjs.hostobjects.ws.internal class
 function WSRequestServiceComponent() {
 
 }
 
+WSRequestServiceComponent.configurationContextService = null;
+
+WSRequestServiceComponent.getConfigurationContext = function() {
+    if(WSRequestServiceComponent.configurationContextService != null) {
+        return WSRequestServiceComponent.configurationContextService.getClientConfigContext();
+    } else {
+        var msg = "ConfigurationContextService cannot be found";
+        return null;
+    }
+}
+*/
+  print("buddhi");
 module.exports = WSRequest;
 
 
