@@ -87,9 +87,8 @@ if(typeof String.prototype.endsWith != "function") {
 
 function WSRequest() {
 
-    //var serialVersionUID = (-4540679471306518117L);
-    var IN_OUT = "in-out";
-    var IN_ONLY = "in-only";
+    var IN_OUT = "IN-OUT";
+    var IN_ONLY = "IN-ONLY";
     var CLIENT_REPOSITORY_LOCATION = "Axis2Config.ClientRepositoryLocation";
     var CLIENT_AXIS2_XML_LOCATION = "Axis2Config.clientAxis2XmlLocation";
 
@@ -101,7 +100,6 @@ function WSRequest() {
     this.responseE4X = this.responseXML;
     this.readyState = 0;
     this.status;
-    //this.getResponseHeader = getResponseHeader;
     this.onreadystatechange = null
     this.error = null;
 
@@ -118,7 +116,8 @@ function WSRequest() {
 
     var that = this;
 
-    this.open = function(arguments) {
+    this.open = function() {
+
         if (that.readyState > 0 && that.readyState < 4) {
             throw new Error("Invalid readyState for WSRequest Hostobject : " + that.readyState);
         } else if (that.readyState == 4) {
@@ -126,14 +125,13 @@ function WSRequest() {
             // readyState equals 4 means this object has been used earlier for an invocation.
             reset();
         }
-        //this method using another jaggery host object.
+        //this method  another jaggery host object.
         try {
-            var configurationContext = ConfigurationContextFactory.
-            createBasicConfigurationContext("META-INF/axis2_client.xml");
-            sender = new ServiceClient(configurationContext, null);
-            //sender = new ServiceClient(WSRequestServiceComponent.getConfigurationContext(), null);
+            //var configurationContext = ConfigurationContextFactory.
+            //createBasicConfigurationContext("META-INF/axis2_client.xml");
+           // sender = new ServiceClient(configurationContext, null);
+            sender = new ServiceClient(WSRequestServiceComponent.getConfigurationContext(), null);
         } catch (e) {
-            print("---------------");
             throw new Error(e);
         }
         // Setting the cookie policy here
@@ -156,6 +154,7 @@ function WSRequest() {
         setCommonProperties(setOptionsOpenWSDL(arguments))
     }
 
+    //not completed line 215  upto transportHeaders code is correct.
     this.send = function() {
         var payload;
         var operationName = ServiceClient.ANON_OUT_IN_OP;
@@ -168,6 +167,7 @@ function WSRequest() {
             payload = arguments[0];
         } else if (arguments.length == 2) {
             if (arguments[0] instanceof QName) {
+
                 var qName = arguments[0];
                 var uri = qName.getNamespaceURI();
                 var localName = qName.getLocalPart();
@@ -203,12 +203,23 @@ function WSRequest() {
                 throw new Error(message);
             }
         } else if (false) {
-            //-------------------- not done.
+            try {
+                var node = AXIOMUtil.stringToOM(payload.toString());
+                if (node instanceof OMElement) {
+                    payloadElement = node;
+                } else {
+                    throw new Error("Invalid input for the payload in WSRequest Hostobject : " + payload);
+                }
+            } catch (e) {
+                var message = "Invalid input for the payload in WSRequest Hostobject : " + payload;
+                throw new Error(message);
+            }
         }
 
         try {
             if (async) { // asynchronous call to send()
-                var callback = new WSRequestCallback();
+
+                var callback = WSRequestCallback;
                 setRampartConfigs(operationName);
                 if (wsdlMode) {
                     // setSSLProperties(wsRequest);
@@ -221,7 +232,7 @@ function WSRequest() {
                         that.readyState = 2;
                     }
                 } else {
-                    //setSSLProperties(wsRequest);
+                    //setSSLProperties();
                     if (IN_ONLY == mepToUpper) {
                         sender.fireAndForget(payloadElement);
                         that.readyState = 4;
@@ -249,9 +260,8 @@ function WSRequest() {
                     } else {
                         updateResponse(
                             sender.sendReceive(operationName, payloadElement));
-                        //------------ not casted.
+                        //transporter throw error
                         transportHeaders = sender.getLastOperationContext().getMessageContext("In").getProperty(MessageContext.TRANSPORT_HEADERS);
-
                     }
                     that.readyState = 4;
                 }
@@ -281,6 +291,7 @@ function WSRequest() {
             throw new Error(message);
         } finally {
             sender.cleanupTransport();
+
         }
     }
 
@@ -327,8 +338,10 @@ function WSRequest() {
         sender = null;
         that.readyState = 0;
     }
-    //done but xml part is not done
+
+    //done but xml part is not done   //working
     function setCommonProperties(optionsObj) {
+
         that.readyState = 1;
 
         if (that.onreadystatechange != null) {
@@ -342,8 +355,9 @@ function WSRequest() {
         var timeout = 60000;
 
         if (optionsObj != null) {
-            var mepObject = optionsObj.get("mep", optionsObj);
-            if (mepObject != null && mepObject !== undefined) {
+
+            var mepObject = optionsObj.mep;
+            if (mepObject != null && (mepObject !== undefined)) {
                 var mepVlaue = mepObject.toString();
                 var mepValueToUpper = mepVlaue.toUpperCase();
                 if (IN_OUT == mepValueToUpper || IN_ONLY == mepValueToUpper) {
@@ -353,29 +367,28 @@ function WSRequest() {
                 }
             }
 
-            var timeoutObject = optionsObj.get("timeout", optionsObj);
+            var timeoutObject = optionsObj.timeout;
             if (timeoutObject != null && timeoutObject !== undefined) {
                 timeout = Number(timeoutObject.toString());
-                //may be cause malfunction.Number() function;
             }
 
-            var soapHeaderObject = optionsObj.get("SOAPHeaders", optionsObj);
+            var soapHeaderObject = optionsObj.SOAPHeaders;
             if (soapHeaderObject != null && soapHeaderObject !== undefined) {
                 soapHeaders = soapHeaderObject;
             }
 
-            var httpHeadersObject = optionsObj.get("HTTPHeaders", optionsObj);
+            var httpHeadersObject = optionsObj.HTTPHeaders;
             if (httpHeadersObject != null && httpHeadersObject !== undefined) {
                 httpHeaders = httpHeadersObject;
             }
 
-            var rampartConfigObject = optionsObj.get("rampart", optionsObj);
+            var rampartConfigObject = optionsObj.rampart;
             if (rampartConfigObject != null && rampartConfigObject !== undefined &&
                 util.isObject(rampartConfigObject)) {
                 rampartConfigs = rampartConfigObject;
             }
 
-            var policyObject = optionsObj.get("policy", optionsObj);
+            var policyObject = optionsObj.policy;
             //check if xml;
             if (policyObject != null && policyObject !== undefined /*&&
                 policyObject is xml*/) {
@@ -387,18 +400,19 @@ function WSRequest() {
         options.setProperty(HTTPConstants.CONNECTION_TIMEOUT, timeout);
 
         if (httpHeaders != null) {
+
             var httpHeadersArray = new ArrayList();
             var msg = "Invalid declaration for HTTPHeaders property";
 
-            var id = httpHeaders.getIds();
+            var id = Object.keys(httpHeaders);
             for (var i = 0; i < id.length; i++) {
-                if (util.isObject(httpHeaders.get(id[i], httpHeaders))) {
-                    var headerObject = httpHeaders.get(Number(id[i]), httpHeaders);
+                if (util.isObject(httpHeaders[ id[i] ])) {
+                    var headerObject = httpHeaders[ id[i] ];
 
-                    if (util.isString(headerObject.get("name", headerObject)) &&
-                        util.isString(headerObject.get("value", headerObject))) {
-                        httpHeadersArray.add(new Header(String (headerObject.get("name", headerObject)),
-                            String (headerObject.get("value", headerObject))));
+                    if (util.isString(headerObject["name"]) &&
+                        util.isString(headerObject["value"])) {
+                        httpHeadersArray.add(new Header(String (headerObject["name"]),
+                            String (headerObject["value"])));
                     } else {
                         throw new Error(msg);
                     }
@@ -410,11 +424,12 @@ function WSRequest() {
         }
 
         if (soapHeaders != null) {
-            //Sets SOAPHeaders speficed in options object an array of name-value json objects
+
+            //Sets SOAPHeaders specified in options object an array of name-value json objects
             var soapHeaderObject;
-            var id = soapHeaders.getIds();
+            var id = Object.keys(soapHeaders);
             for (var k = 0; k < id.length; k++) {
-                soapHeaderObject = soapHeaders.get(Number(id), soapHeaders);
+                soapHeaderObject = soapHeaders[id[k]];
                 if (util.isString(soapHeaderObject)) {
                     var header = String(soapHeaderObject);
                     try {
@@ -424,7 +439,7 @@ function WSRequest() {
                         var message = "Error creating XML from the soap header : " + header;
                         throw new Error(message);
                     }
-                } else if (false) {  // corrected here.
+                } else if (false) {  // have to add here.
                     try {
                         sender.addHeader(AXIOMUtil.stringToOM(soapHeaderObject.toString()));
                     } catch (e) {
@@ -434,30 +449,27 @@ function WSRequest() {
                     var uri;
                     var localName;
 
-                    var o = soapHeaderObject.unwrap();//casting not done.
+                    if (soapHeaderObject["qName"] instanceof QName) {
 
-                    if (soapHeaderObject.get("qName",
-                        soapHeaderObject) instanceof QName) {
-
-                        var qName = soapHeaderObject.get("qName", soapHeaderObject); // casting not done.
+                        var qName = soapHeaderObject["qName"];
                         uri = String(qName.getNamespaceURI());
                         localName = String (qName.getLocalPart());
                     } else {
                         throw new Error("No qName property found for the soap headers");
                     }
-                    if (util.isString(soapHeaderObject.get("value", soapHeaderObject))) {
+                    if (util.isString(soapHeaderObject["value"])) {
                         try {
                             sender.addStringHeader(new QName(uri, localName),
-                                String (soapHeaderObject.get("value", soapHeaderObject)));
+                                String (soapHeaderObject["value"]));
                         } catch (e) {
                             throw new Error(e);
                         }
-                    } else if (/*soapHeaderObject.get("value", soapHeaderObject) instanceof */false ) {//xmlobjec not defined
+                    } else if (/*soapHeaderObject["value"] instanceof */false ) {//xmlobjec not defined
                         var omNamespace = OMAbstractFactory.getOMFactory().createOMNamespace(uri, null);
                         var headerBlock = OMAbstractFactory.getSOAP12Factory().
                             createSOAPHeaderBlock(localName, omNamespace);
                         try {
-                            headerBlock.addChild(AXIOMUtil.stringToOM(soapHeaderObject.get("value", soapHeaderObject).toString()));
+                            headerBlock.addChild(AXIOMUtil.stringToOM((soapHeaderObject["value"]).toString()));
                         } catch (e) {
                             throw new Error(e);
                         }
@@ -471,6 +483,7 @@ function WSRequest() {
     }
 
     function setOptionsOpen(args) {
+
         var optionsObj = null;
         var options = sender.getOptions();
         var httpMethod = "post";
@@ -552,8 +565,59 @@ function WSRequest() {
         if (util.isString(args[0])) {
             httpMethod = String(args[0]);
             useSOAP = "false";
-        } else if (false) {
+        } else if (util.isArray(args[0])) {
+            optionsObj = args[0];
 
+            var useSOAPObject = optionsObj.useSOAP;
+            if (useSOAPObject != null && (useSOAPObject !== undefined)) {
+                useSOAP = useSOAPObject.toString();
+            }
+
+            var useWSAObject = optionsObj.useWSA;
+            if (useWSAObject != null && (useWSAObject !== undefined)) {
+                useWSA = useWSAObject.toString();
+            }
+
+            var HTTPMethodObject = optionsObj.HTTPMethod;
+            if (HTTPMethodObject != null && (HTTPMethodObject !== undefined)) {
+                httpMethod = HTTPMethodObject.toString();
+            }
+
+            var actionObject = optionsObj.action;
+            if (actionObject != null && (actionObject !== undefined)) {
+                action = actionObject.toString();
+            }
+
+            var httpLocationObject = optionsObj.HTTPLocation;
+            if (httpLocationObject != null && (httpLocationObject !== undefined)) {
+                httpLocation = httpLocationObject.toString();
+            }
+
+            var httpLocationIgnoreUncitedObject =
+                optionsObj.HTTPLocationIgnoreUncited;
+            if (httpLocationIgnoreUncitedObject != null &&
+                (httpLocationIgnoreUncitedObject !== undefined)) {
+                httpLocationIgnoreUncited = httpLocationIgnoreUncitedObject.toString();
+            }
+
+            var httpQueryParameterSeparatorObject =
+                optionsObj.HTTPQueryParameterSeparator;
+            if (httpQueryParameterSeparatorObject != null &&
+                (httpQueryParameterSeparatorObject !== undefined)) {
+                httpQueryParameterSeparator = httpQueryParameterSeparatorObject.toString();
+            }
+
+            var httpInputSerializationObject = optionsObj.HTTPInputSerialization;
+            if (httpInputSerializationObject != null &&
+                (httpInputSerializationObject !== undefined)) {
+                httpInputSerialization = httpInputSerializationObject.toString();
+            }
+
+            var HTTPContentEncodingObject = optionsObj.HTTPContentEncoding;
+            if (HTTPContentEncodingObject != null &&
+                (HTTPContentEncodingObject !== undefined)) {
+                httpContentEncoding = HTTPContentEncodingObject.toString();
+            }
         }
 
         options.setProperty(HTTPConstants.CHUNKED, Boolean.FALSE);
@@ -573,10 +637,12 @@ function WSRequest() {
             options.setProperty(HTTPConstants.AUTHENTICATE, authenticator);
         }
 
+        var useSoapToUpper = useSOAP.toUpperCase();
         //handle useSOAP options.
-        if (useSOAP == "1.1") {
+
+        if (useSoapToUpper == "1.1") {
             options.setSoapVersionURI(SOAP11Constants.SOAP_ENVELOPE_NAMESPACE_URI);
-        } else if ((useSOAP == ("1.2")) || (useSoapToUpper == ("TRUE"))) {
+        } else if ((useSoapToUpper == ("1.2")) || (useSoapToUpper == ("TRUE"))) {
             options.setSoapVersionURI(SOAP12Constants.SOAP_ENVELOPE_NAMESPACE_URI);
         } else if (useSoapToUpper ==  ("FALSE")) {
             options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
@@ -585,12 +651,12 @@ function WSRequest() {
         }
 
         if (httpMethod != null) {
+            var useSoapToUpper = useSOAP.toUpperCase();
             var httpMethodToUpper = httpMethod.toUpperCase();
             var httpMethodGetToUpper = (Constants.Configuration.HTTP_METHOD_GET).toUpperCase();
             var httpMethodPostToUpper =(Constants.Configuration.HTTP_METHOD_POST).toUpperCase();
             var httpMethodDeleteToUpper =(Constants.Configuration.HTTP_METHOD_DELETE).toUpperCase();
             var httpMethodPutToUpper = (Constants.Configuration.HTTP_METHOD_PUT).toUpperCase();
-            var useSoapToUpper = useSOAP.toUpperCase();
 
             if (httpMethodToUpper == httpMethodGetToUpper) {
                 // If useSOAP is not false then the HTTPMethod must be POST
@@ -649,51 +715,51 @@ function WSRequest() {
                 options.setProperty("HTTPConstants.MC_GZIP_REQUEST", "true");
             }
         }
-         //not no this equation is correct or not.
-        var useWSAToUpper = useWSA.toUpperCase();
-        if ((useWSA != null) && useWSA == "1.0" || (useWSAToUpper == "TRUE") ||
-            useWSAToUpper == "SUBMISSION") {
-            if (useWSAToUpper == "SUBMISSION") {
-                // set addressing to WSA submission version.
-                // WSA submission
-                // version
-                options.setProperty(AddressingConstants.WS_ADDRESSING_VERSION,
-                    AddressingConstants.Submission.WSA_NAMESPACE);
+
+         if ((useWSA != null) && ((useWSA.toUpperCase() == "1") || (useWSA.toUpperCase() == "TRUE") ||
+                useWSA.toUpperCase() == "SUBMISSION")) {
+
+                var useWSAToUpper = useWSA.toUpperCase();
+                if (useWSAToUpper == "SUBMISSION") {
+                    // set addressing to WSA submission version.
+                    options.setProperty(AddressingConstants.WS_ADDRESSING_VERSION,
+                        AddressingConstants.Submission.WSA_NAMESPACE);
+                } else {
+                    options.setProperty(AddressingConstants.WS_ADDRESSING_VERSION,
+                        AddressingConstants.Final.WSA_NAMESPACE);
+                }
+                if (action != null) {
+                    try {
+                        //sender.engageModule(Constants.MODULE_ADDRESSING);
+                    } catch (e) {
+                        throw new Error(e);
+                    }
+                    options.setAction(action);
+                } else {
+                    throw new Error("INVALID_SYNTAX_EXCEPTION. Action is NULL when useWSA is true.");
+                }
+                if (optionsObj != null) {
+                    var fromObject = optionsObj["from"];
+                    if (fromObject != null && (fromObject !== undefined) ) {
+                        options.setFrom(new EndpointReference(fromObject.toString()));
+                    }
+                    var replyToObject = optionsObj["replyTo"];
+                    if (replyToObject != null && (replyToObject !== undefined)) {
+                        options.setReplyTo(new EndpointReference(replyToObject.toString()));
+                    }
+                    var faultToObject = optionsObj["faultTo"];
+                    if (faultToObject != null && (faultToObject !== undefined)) {
+                        options.setFaultTo(new EndpointReference(faultToObject.toString()));
+                    }
+                }
             } else {
-                options.setProperty(AddressingConstants.WS_ADDRESSING_VERSION,
-                    AddressingConstants.Final.WSA_NAMESPACE);
-            }
-            if (action != null) {
-                try {
-                    sender.engageModule(Constants.MODULE_ADDRESSING);
-                } catch (e) {
-                    throw new Error(e);
-                }
-                options.setAction(action);
-            } else {
-                throw new Error("INVALID_SYNTAX_EXCEPTION. Action is NULL when useWSA is true.");
-            }
-            if (optionsObj != null) {
-                var fromObject = optionsObj.get("from", optionsObj);
-                if (fromObject != null && (fromObject !== undefined) ) {
-                    options.setFrom(new EndpointReference(fromObject.toString()));
-                }
-                var replyToObject = optionsObj.get("replyTo", optionsObj);
-                if (replyToObject != null && (replyToObject !== undefined)) {
-                    options.setReplyTo(new EndpointReference(replyToObject.toString()));
-                }
-                var faultToObject = optionsObj.get("faultTo", optionsObj);
-                if (faultToObject != null && (faultToObject !== undefined)) {
-                    options.setFaultTo(new EndpointReference(faultToObject.toString()));
+                sender.disengageModule(Constants.MODULE_ADDRESSING);
+                if (action != null) {
+                    options.setProperty(Constants.Configuration.DISABLE_SOAP_ACTION, "false");
+                    options.setAction(action);
                 }
             }
-        } else {
-            sender.disengageModule(Constants.MODULE_ADDRESSING);
-            if (action != null) {
-                options.setProperty(Constants.Configuration.DISABLE_SOAP_ACTION, "false");
-                options.setAction(action);
-            }
-        }
+
         return optionsObj;
     }
 
@@ -925,7 +991,7 @@ function WSRequest() {
         var cryptoConfig = new CryptoConfig();
         cryptoConfig.setProvider("org.apache.ws.security.components.crypto.Merlin");
         cryptoConfig.setProp(merlinProp);
-        var property = crypto.get(CryptoConfig.CACHE_ENABLED, crypto);
+        var property = crypto[CryptoConfig.CACHE_ENABLED];
         if ((util.isBoolean(property) && property) ||
             (util.isString(property) && JavaBoolean.parse(String(property)))) {
             cryptoConfig.setCacheEnabled(true);
@@ -935,9 +1001,9 @@ function WSRequest() {
                 "' in rampart configuration");
         }
 
-        property = crypto.get(CryptoConfig.CACHE_REFRESH_INTVL, crypto);
+        property = crypto[CryptoConfig.CACHE_REFRESH_INTVL];
         if (util.isNumber(property)) {
-            cryptoConfig.setCacheRefreshInterval(String(property));       //--dont know write
+            cryptoConfig.setCacheRefreshInterval(String(property));
         } else if (util.isString(property)) {
             cryptoConfig.setCacheRefreshInterval(String (property));
         } else if (property != null && property !== undefined) {
@@ -954,7 +1020,7 @@ function WSRequest() {
         for (var i = 0; i < objects.length; i++) {
             if (util.isString(objects[i])) {
                 var property = String(objects[i]);
-                var value = config.get(property, config);
+                var value = config[property];
                 if (util.isString(value)) {
                     properties.setProperty(property, String(value));
                 } else {
@@ -1010,7 +1076,7 @@ function WSRequest() {
                     rampartConfig.setEncryptionUser(property);
                 }
 
-                var obj = rampartConfigs.get(RampartConfig.TS_TTL_LN, rampartConfigs);
+                var obj = rampartConfigs[RampartConfig.TS_TTL_LN];
                 if (util.isNumber(obj)) {
                     rampartConfig.setTimestampTTL(String(obj));
                 } else if (util.isString(obj)) {
@@ -1020,7 +1086,7 @@ function WSRequest() {
                         "' in rampart configuration");
                 }
 
-                obj = rampartConfigs.get(RampartConfig.TS_MAX_SKEW_LN, rampartConfigs);
+                obj = rampartConfigs[RampartConfig.TS_MAX_SKEW_LN];
                 if (util.isNumber(obj)) {
                     rampartConfig.setTimestampMaxSkew(String(obj));
                 } else if (util.isString(obj)) {
@@ -1030,7 +1096,7 @@ function WSRequest() {
                         "' in rampart configuration")
                 }
 
-                obj = rampartConfigs.get(RampartConfig.TS_PRECISION_IN_MS_LN, rampartConfigs);
+                obj = rampartConfigs[RampartConfig.TS_PRECISION_IN_MS_LN];
                 if (util.isNumber(obj)) {
                     rampartConfig.setTimestampPrecisionInMilliseconds(String(obj));
                 } else if (util.isString(obj)) {
@@ -1040,27 +1106,27 @@ function WSRequest() {
                         "' in rampart configuration");
                 }
 
-                var cryptoObject = rampartConfigs.get(RampartConfig.SIG_CRYPTO_LN, rampartConfigs);
+                var cryptoObject = rampartConfigs[RampartConfig.SIG_CRYPTO_LN];
                 if (util.isObject(cryptoObject)) {
                     rampartConfig.setSigCryptoConfig(getCryptoConfig(cryptoObject));
                 }
 
-                cryptoObject = rampartConfigs.get(RampartConfig.ENCR_CRYPTO_LN, rampartConfigs);
+                cryptoObject = rampartConfigs[RampartConfig.ENCR_CRYPTO_LN];
                 if (util.isObject(cryptoObject)) {
                     rampartConfig.setEncrCryptoConfig(getCryptoConfig(cryptoObject));
                 }
 
-                cryptoObject = rampartConfigs.get(RampartConfig.DEC_CRYPTO_LN, rampartConfigs);
+                cryptoObject = rampartConfigs[RampartConfig.DEC_CRYPTO_LN];
                 if (util.isObject(cryptoObject)) {
                     rampartConfig.setEncrCryptoConfig(getCryptoConfig(cryptoObject));
                 }
 
-                cryptoObject = rampartConfigs.get(RampartConfig.STS_CRYPTO_LN, rampartConfigs);
+                cryptoObject = rampartConfigs[RampartConfig.STS_CRYPTO_LN];
                 if (util.isObject(cryptoObject)) {
                     rampartConfig.setSigCryptoConfig(getCryptoConfig(cryptoObject));
                 }
 
-                var kerberosConfig = rampartConfigs.get(RampartConfig.KERBEROS_CONFIG, rampartConfigs);
+                var kerberosConfig = rampartConfigs[RampartConfig.KERBEROS_CONFIG];
                 if (util.isObject(kerberosConfig)) {
                     rampartConfig.setKerberosConfig(getKerberosConfigs(kerberosConfig));
                 }
@@ -1101,8 +1167,7 @@ function WSRequest() {
                     var xmlPath = "scenarios/scenario1-policy.xml";
                     try {
 
-                        /////---------------- need change here.
-                        var policyXMLStream = "";   //need to use get resource as stream.
+                        var policyXMLStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(xmlPath);;
                         var builder = new StAXOMBuilder(policyXMLStream);
                         rampartPolicy = PolicyEngine.getPolicy(builder.getDocumentElement());
                     } catch (e) {
@@ -1162,7 +1227,7 @@ function WSRequest() {
     //not completed
     function updateResponse(response) {
         if (response instanceof OMSourcedElementImpl) {
-            var sourcedElement = response;  //--- not casted
+            var sourcedElement = response;
             setJSONAsXML(sourcedElement);
         } else if (response != null) {
             that.responseText = response.toStringWithConsume();
@@ -1309,7 +1374,7 @@ function WSRequest() {
 
 }
 
-/*
+
 // org.jaggeryjs.hostobjects.ws.internal class
 function WSRequestServiceComponent() {
 
@@ -1325,8 +1390,7 @@ WSRequestServiceComponent.getConfigurationContext = function() {
         return null;
     }
 }
-*/
-  print("buddhi");
+
 module.exports = WSRequest;
 
 
