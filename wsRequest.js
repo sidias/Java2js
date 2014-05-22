@@ -36,7 +36,6 @@ var CookiePolicy                        = Java.type("org.apache.commons.httpclie
 var GetMethod                           = Java.type("org.apache.commons.httpclient.methods.GetMethod");
 var HttpStatus                          = Java.type("org.apache.commons.httpclient.HttpStatus");
 var FilenameUtils                       = Java.type("org.apache.commons.io.FilenameUtils");
-
 var Policy                              = Java.type("org.apache.neethi.Policy");
 var RampartMessageData                  = Java.type("org.apache.rampart.RampartMessageData");
 var Definition                          = Java.type("javax.wsdl.Definition");
@@ -47,7 +46,6 @@ var SOAPAddress                         = Java.type("javax.wsdl.extensions.soap.
 var SOAP12Address                       = Java.type("javax.wsdl.extensions.soap12.SOAP12Address");
 var WSDLFactory                         = Java.type("javax.wsdl.factory.WSDLFactory");
 var WSDLReader                          = Java.type("javax.wsdl.xml.WSDLReader");
-
 var XMLInputFactory                     = Java.type("javax.xml.stream.XMLInputFactory");
 var XMLStreamException                  = Java.type("javax.xml.stream.XMLStreamException");
 var XMLStreamReader                     = Java.type("javax.xml.stream.XMLStreamReader");
@@ -60,17 +58,17 @@ var MultiThreadedHttpConnectionManager  = Java.type("org.apache.commons.httpclie
 var UsernamePasswordCredentials         = Java.type("org.apache.commons.httpclient.UsernamePasswordCredentials");
 var AuthScope                           = Java.type("org.apache.commons.httpclient.auth.AuthScope");
 
-var List                        = Java.type("java.util.List");
-var Properties                  = Java.type("java.util.Properties");
-var File                        = Java.type("java.io.File");
-var InputStream                 = Java.type("java.io.InputStream");
-var StringReader                = Java.type("java.io.StringReader");
-var ArrayList                   = Java.type("java.util.ArrayList");
-var JavaBoolean                 = Java.type("java.lang.Boolean");
-var SOAP12Address               = Java.type("javax.wsdl.extensions.soap12.SOAP12Address");
-var MalformedURLException       = Java.type("java.net.MalformedURLException");
-var URL                         = Java.type("java.net.URL");
-
+var List                                = Java.type("java.util.List");
+var Properties                          = Java.type("java.util.Properties");
+var File                                = Java.type("java.io.File");
+var InputStream                         = Java.type("java.io.InputStream");
+var StringReader                        = Java.type("java.io.StringReader");
+var ArrayList                           = Java.type("java.util.ArrayList");
+var JavaBoolean                         = Java.type("java.lang.Boolean");
+var SOAP12Address                       = Java.type("javax.wsdl.extensions.soap12.SOAP12Address");
+var MalformedURLException               = Java.type("java.net.MalformedURLException");
+var URL                                 = Java.type("java.net.URL");
+    
 /**
  * register two methods 'startsWith' and 'endsWith' to string object
  * */
