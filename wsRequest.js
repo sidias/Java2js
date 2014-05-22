@@ -22,6 +22,7 @@ var AxisEndpoint                        = Java.type("org.apache.axis2.descriptio
 var EndpointReference                   = Java.type("org.apache.axis2.addressing.EndpointReference");
 var HttpTransportProperties             = Java.type("org.apache.axis2.transport.http.HttpTransportProperties");
 var Constants                           = Java.type("org.apache.axis2.Constants");
+var MessageContext                      = Java.type("org.apache.axis2.context.MessageContext");
 var WSDLConstants                       = Java.type("org.apache.axis2.wsdl.WSDLConstants");
 var ServiceClient                       = Java.type("org.apache.axis2.client.ServiceClient");
 var WSDL2Constants                      = Java.type("org.apache.axis2.description.WSDL2Constants");
